@@ -99,7 +99,9 @@ async function call(action) {
     if (action === "status") {
       const v = Object.entries(d.byVillage).map(([k, n]) => `${k}: ${n}`).join(", ") || "–";
       document.getElementById("status").innerHTML =
-        `Kayıtlı numara: <b>${d.subscribers}</b> (${v})<br>SMS: <b>${d.smsReady ? "hazır (başlık: " + d.sender + ")" : "tanımlı değil – deneme modu"}</b><br>Demo modu: <b>${d.demo ? "açık (" + (d.demo.date || "senaryo") + ", bitiş " + new Date(d.demo.until).toLocaleTimeString("tr-TR") + ")" : "kapalı"}</b>`;
+        `Kayıtlı numara: <b>${d.subscribers}</b> (${v})<br>SMS: <b>${d.smsReady ? "hazır (başlık: " + d.sender + ")" : "tanımlı değil – deneme modu"}</b><br>Demo modu: <b>${d.demo ? "açık (" + (d.demo.date || "senaryo") + ", bitiş " + new Date(d.demo.until).toLocaleTimeString("tr-TR") + ")" : "kapalı"}</b>` +
+        (d.list.length ? `<table><tr><th>Numara</th><th>Köy</th><th>Kayıt zamanı</th></tr>` +
+          d.list.map((s) => `<tr><td>${s.phone}</td><td>${s.village}</td><td>${new Date(s.at).toLocaleString("tr-TR")}</td></tr>`).join("") + `</table>` : "");
       out.textContent = "Durum güncellendi.";
       return;
     }

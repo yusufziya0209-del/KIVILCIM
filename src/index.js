@@ -26,6 +26,12 @@ async function loadSubscribers(env) {
   return out;
 }
 
+// "905321234567" → "0532 *** ** 67" (panelde numaranın tamamı gösterilmez)
+function maskPhone(p) {
+  const d = String(p).slice(2); // 5321234567
+  return `0${d.slice(0, 3)} *** ** ${d.slice(-2)}`;
+}
+
 async function getDemo(env) {
   const demo = await env.KV.get("settings:demo", { type: "json" });
   return demo && Date.parse(demo.until) > Date.now() ? demo : null;
@@ -141,9 +147,13 @@ async function apiAdmin(req, env) {
         const subs = await loadSubscribers(env);
         const byVillage = {};
         for (const s of subs) byVillage[s.village] = (byVillage[s.village] || 0) + 1;
+        const list = subs
+          .sort((a, b) => (a.consentAt < b.consentAt ? 1 : -1))
+          .map((s) => ({ phone: maskPhone(s.phone), village: s.village, at: s.consentAt }));
         return json({
           subscribers: subs.length,
           byVillage,
+          list,
           demo: await getDemo(env),
           smsReady: Boolean(env.ILETIMERKEZI_KEY && env.ILETIMERKEZI_HASH),
           sender: env.SMS_SENDER || "APITEST",
