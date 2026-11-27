@@ -89,6 +89,33 @@ footer{margin-top:64px;background:var(--ink);color:var(--soft-dark);font-size:14
 footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;padding-top:26px;padding-bottom:26px}
 footer b{color:var(--ember)}
 .loading{opacity:.55}
+.when{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+#window{font-weight:700;white-space:nowrap}
+.risk-cta{align-self:flex-start;background:var(--paper);color:var(--ink);font-weight:700;font-size:17px;padding:12px 22px;border-radius:999px;text-decoration:none}
+@media (max-width:640px){
+  nav a:not(.cta){display:none}
+  header .wrap{padding-top:12px;padding-bottom:12px}
+  .logo{font-size:22px}
+  nav .cta{padding:8px 16px;font-size:15px}
+  .top{margin-top:24px}
+  .risk{padding:24px 22px;gap:14px}
+  .risk .act{font-size:18px}
+  .stats{gap:8px;flex-wrap:nowrap}
+  .stat{flex:1 1 0;min-width:0;padding:10px 8px;border-radius:12px}
+  .stat .k{font-size:12px}
+  .stat .v{font-size:clamp(17px,5.4vw,22px);white-space:nowrap}
+  .bar span.minor{visibility:hidden}
+  .stat .sa{display:none}
+  .risk-cta{font-size:15px;padding:11px 18px;white-space:nowrap}
+  .fact{padding:18px 20px}
+  .fact .n{font-size:36px}
+  .bars{gap:2px}
+  .panel{padding:22px 18px}
+  .signup{padding:26px 22px}
+  .muhtar{padding:26px 22px}
+  .side{padding:20px}
+}
+
 .why{margin-top:56px}
 .why h2{font-size:32px;margin-top:2px}
 .why .lead2{margin-top:12px;font-size:18px;line-height:1.6;color:var(--soft);max-width:820px}
@@ -135,14 +162,15 @@ footer b{color:var(--ember)}
 
   <section id="risk" class="row loading">
     <div class="risk" id="riskCard" aria-live="polite">
-      <div><span class="badge" id="badge">ÖNÜMÜZDEKİ 24 SAAT</span> <span id="window"></span></div>
+      <div class="when"><span class="badge" id="badge">ÖNÜMÜZDEKİ 24 SAAT</span><span id="window"></span></div>
       <h2 id="levelTitle">…</h2>
       <p class="act" id="action">Veriler yükleniyor.</p>
       <div class="stats">
-        <div class="stat"><p class="k">Sıcaklık (şu an)</p><p class="v" id="t">–</p></div>
-        <div class="stat"><p class="k">Nem (şu an)</p><p class="v" id="h">–</p></div>
-        <div class="stat"><p class="k">Rüzgâr (şu an)</p><p class="v" id="w">–</p></div>
+        <div class="stat"><p class="k">Sıcaklık<span class="sa"> (şu an)</span></p><p class="v" id="t">–</p></div>
+        <div class="stat"><p class="k">Nem<span class="sa"> (şu an)</span></p><p class="v" id="h">–</p></div>
+        <div class="stat"><p class="k">Rüzgâr<span class="sa"> (şu an)</span></p><p class="v" id="w">–</p></div>
       </div>
+      <a class="risk-cta" href="#kayit">Köyünüz için SMS uyarısı alın →</a>
     </div>
 
     <div class="side">
@@ -187,8 +215,8 @@ footer b{color:var(--ember)}
       <div class="fact"><p class="n">43.101 ha</p><p>2021'de Muğla'da yanan alan; ülke genelinde yanan alanın yaklaşık üçte biri.</p></div>
     </div>
     <div class="photos">
-      <figure><img src="/img/seydikemer-yol.jpg" alt="Seydikemer'de yangın dumanıyla turuncuya dönmüş gökyüzü altında, trafiği yöneten polis ve bekleyen araçlar" loading="lazy"><figcaption>Seydikemer yangını, 2026 yazı</figcaption></figure>
-      <figure><img src="/img/seydikemer-itfaiye.jpg" alt="Yol kenarındaki alevlerin yanından geçen bir arazöz" loading="lazy"><figcaption>Seydikemer yangını, 2026 yazı</figcaption></figure>
+      <figure><img src="/img/seydikemer-yol.jpg" alt="Seydikemer'de yangın dumanıyla turuncuya dönmüş gökyüzü altında, trafiği yöneten polis ve bekleyen araçlar"><figcaption>Seydikemer yangını, 2026 yazı</figcaption></figure>
+      <figure><img src="/img/seydikemer-itfaiye.jpg" alt="Yol kenarındaki alevlerin yanından geçen bir arazöz"><figcaption>Seydikemer yangını, 2026 yazı</figcaption></figure>
     </div>
     <p class="src">Kaynaklar: OGM, Karar (2025) aracılığıyla; Ersöz vd. (2022), EFFIS “Forest fires in Europe, Middle East and North Africa 2021” raporu.</p>
   </section>
@@ -345,7 +373,7 @@ function render() {
   const heights = { green: "34%", yellow: "66%", red: "100%" };
   $("bars").innerHTML = loc.hours.map((h) =>
     `<div class="bar" title="${h.time.slice(11, 16)} · ${NAMES[h.level]} · ${h.temp} °C, %${h.humidity} nem, ${h.wind} km/s">` +
-    `<i style="height:${heights[h.level]};background:${COLORS[h.level]}"></i><span>${h.time.slice(11, 13)}</span></div>`
+    `<i style="height:${heights[h.level]};background:${COLORS[h.level]}"></i><span${Number(h.time.slice(11, 13)) % 3 ? ' class="minor"' : ""}>${h.time.slice(11, 13)}</span></div>`
   ).join("");
   $("barsTitle").textContent = DATA.demo && DATA.source.includes("arşiv") ? "O günün 24 saati" : "Önümüzdeki 24 saat";
   $("safe").innerHTML = loc.peak === "green"
