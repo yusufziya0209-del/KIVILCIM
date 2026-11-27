@@ -8,6 +8,8 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Ccircle cx='18' cy='18' r='17' fill='%23F7D9C6'/%3E%3Ccircle cx='18' cy='18' r='10' fill='%23F08A4B'/%3E%3Ccircle cx='18' cy='18' r='4' fill='%23E8C547'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400..700&family=Nunito+Sans:wght@400;700&family=Caveat:wght@700&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 <style>
 :root{--ink:#1F2A24;--paper:#FBF7F0;--card:#F2EBDF;--soft:#4A5568;--soft-dark:#C9D3CC;--ember:#F08A4B;--ember-text:#B5461A;--green:#4E9F6A;--yellow:#E8B931;--red:#B83A26;--line:#E6DDCC}
 *{box-sizing:border-box}
@@ -43,6 +45,11 @@ nav .cta{background:var(--ember);color:var(--ink);padding:10px 20px;border-radiu
 select,input{font:inherit}
 .small{font-size:14px;color:var(--soft)}
 .map{width:100%;height:auto;border-radius:16px}
+#lmap{display:none;width:100%;height:320px;border-radius:16px;z-index:0}
+#lmap.on{display:block}
+.map.off{display:none}
+#pins g{cursor:pointer}
+.leaflet-tooltip.pin{font:700 13px 'Nunito Sans',Arial,sans-serif;background:#FFFDF8;border:1px solid #C9BFAE;box-shadow:none;padding:2px 8px}
 .map text{font:700 15px 'Nunito Sans',Arial,sans-serif;fill:var(--ink)}
 .panel{margin-top:24px;background:#FFFDF8;border:1px solid var(--line);border-radius:24px;padding:26px 30px}
 .legend{display:flex;flex-wrap:wrap;gap:16px;font-size:14px;color:var(--soft)}
@@ -145,6 +152,7 @@ footer b{color:var(--ember)}
           <select id="villageSelect"></select>
         </label>
       </div>
+      <div id="lmap" aria-label="Köylerin risk haritası (OpenStreetMap)"></div>
       <svg class="map" viewBox="0 0 440 300" role="img" aria-label="Köylerin risk haritası" id="map">
         <rect width="440" height="300" fill="#E4DCCB"/>
         <path d="M0 210 C60 190 90 240 150 230 C200 222 210 270 260 300 L0 300 Z" fill="#BFD7DD"/>
@@ -152,7 +160,7 @@ footer b{color:var(--ember)}
         <path d="M60 160 C140 120 220 140 300 100 C340 80 380 110 420 90" fill="none" stroke="#C9BFAE" stroke-width="3" stroke-dasharray="6 6"/>
         <g id="pins"></g>
       </svg>
-      <p class="small">Harita temsilidir. Riskler saatlik hava tahmininden hesaplanır.</p>
+      <p class="small" id="mapNote">Haritada bir köye dokunarak o köyün riskini görebilirsiniz.</p>
     </div>
   </section>
 
@@ -278,7 +286,41 @@ function fillSelects() {
   }
   if (!DATA.locations.some((l) => l.id === selected)) selected = DATA.locations[0].id;
   sel.value = selected;
-  sel.onchange = () => { selected = sel.value; try { localStorage.setItem("kivilcim-village", selected); } catch {} render(); };
+  sel.onchange = () => selectVillage(sel.value);
+}
+
+function selectVillage(id) {
+  selected = id;
+  $("villageSelect").value = id;
+  try { localStorage.setItem("kivilcim-village", id); } catch {}
+  render();
+}
+
+// Gerçek harita (OpenStreetMap + Leaflet). Yüklenemezse çizim haritası kullanılır.
+let LMAP = null, MARKERS = {};
+function initRealMap() {
+  if (LMAP || !window.L) return Boolean(LMAP);
+  try {
+    LMAP = L.map("lmap", { scrollWheelZoom: false }).setView([36.52, 29.25], 10);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(LMAP);
+    for (const l of DATA.locations) {
+      MARKERS[l.id] = L.circleMarker([l.lat, l.lon], { radius: 13, weight: 3, fillOpacity: 0.95 })
+        .bindTooltip("", { permanent: true, direction: "right", offset: [14, 0], className: "pin" })
+        .on("click", () => selectVillage(l.id))
+        .addTo(LMAP);
+    }
+    LMAP.fitBounds(DATA.locations.map((l) => [l.lat, l.lon]), { padding: [40, 60] });
+    $("lmap").classList.add("on");
+    $("map").classList.add("off");
+    setTimeout(() => LMAP.invalidateSize(), 50);
+    return true;
+  } catch (e) {
+    LMAP = null;
+    return false;
+  }
 }
 
 function render() {
@@ -313,11 +355,21 @@ function render() {
       : "Önümüzdeki 24 saat boyunca risk devam ediyor.";
 
   // Harita
+  if (initRealMap()) {
+    for (const l of DATA.locations) {
+      const m = MARKERS[l.id];
+      if (!m) continue;
+      const label = { green: "Yeşil", yellow: "Sarı", red: "Kırmızı" }[l.peak];
+      m.setStyle({ fillColor: COLORS[l.peak], color: l.id === selected ? "#1F2A24" : "#FFFDF8", weight: l.id === selected ? 4 : 2 });
+      m.setTooltipContent(`${l.name.replace(" merkez", "")} · ${label}`);
+      if (l.id === selected) m.bringToFront();
+    }
+  }
   $("pins").innerHTML = DATA.locations.map((l) => {
     const [x, y] = PINS[l.id] || [220, 150];
     const ring = l.id === selected ? `<circle cx="${x}" cy="${y}" r="19" fill="none" stroke="#1F2A24" stroke-width="3"/>` : "";
     const label = { green: "Yeşil", yellow: "Sarı", red: "Kırmızı" }[l.peak];
-    return `${ring}<circle cx="${x}" cy="${y}" r="13" fill="${COLORS[l.peak]}"/><text x="${x + (l.id === selected ? 25 : 20)}" y="${y + 5}">${l.name.replace(" merkez", "")} · ${label}</text>`;
+    return `<g data-id="${l.id}">${ring}<circle cx="${x}" cy="${y}" r="13" fill="${COLORS[l.peak]}"/><text x="${x + (l.id === selected ? 25 : 20)}" y="${y + 5}">${l.name.replace(" merkez", "")} · ${label}</text></g>`;
   }).join("");
 }
 
@@ -357,6 +409,12 @@ $("unsubForm").addEventListener("submit", async (e) => {
   const data = await res.json();
   $("unsubMsg").textContent = data.message || data.error;
 });
+
+$("pins").addEventListener("click", (e) => {
+  const g = e.target.closest("[data-id]");
+  if (g) selectVillage(g.dataset.id);
+});
+window.addEventListener("load", () => { if (DATA) render(); }); // Leaflet geç yüklenirse haritayı kur
 
 load();
 setInterval(load, 10 * 60 * 1000);
