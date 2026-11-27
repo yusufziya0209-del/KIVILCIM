@@ -3,6 +3,8 @@
 AGÜ GLB300 Societal Impact projesi. Site, Seydikemer–Fethiye için saatlik yangın riskini hesaplar,
 kayıt olan kişilere riskli günlerde SMS gönderir ve final sunumu için bir **demo paneli** içerir.
 
+Site adresi: **https://kivilcimuyari.org** (yedek: https://kivilcim-uyari.yusufziya0209.workers.dev)
+
 Site **Cloudflare Workers** üzerinde çalışır (Netlify Türkiye'den erişilemediği için taşındı).
 
 ## Kurulum
