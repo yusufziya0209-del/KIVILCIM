@@ -347,6 +347,8 @@ function fillSelects() {
 
 function selectVillage(id) {
   selected = id;
+  const loc = DATA && DATA.locations.find((l) => l.id === id);
+  if (LMAP && loc) LMAP.panTo([loc.lat, loc.lon]);
   $("villageSelect").value = id;
   try { localStorage.setItem("kivilcim-village", id); } catch {}
   render();
@@ -357,7 +359,11 @@ let LMAP = null, MARKERS = {};
 function initRealMap() {
   if (LMAP || !window.L) return Boolean(LMAP);
   try {
-    LMAP = L.map("lmap", { scrollWheelZoom: false }).setView([36.52, 29.25], 10);
+    // Önce kutuyu görünür yap: gizli bir kutuda harita boyutunu ölçemez ve yanlış yerde açılır.
+    $("lmap").classList.add("on");
+    $("map").classList.add("off");
+    const bounds = L.latLngBounds(DATA.locations.map((l) => [l.lat, l.lon]));
+    LMAP = L.map("lmap", { scrollWheelZoom: false }).fitBounds(bounds, { padding: [40, 70], maxZoom: 11 });
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 18,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -368,12 +374,12 @@ function initRealMap() {
         .on("click", () => selectVillage(l.id))
         .addTo(LMAP);
     }
-    LMAP.fitBounds(DATA.locations.map((l) => [l.lat, l.lon]), { padding: [40, 60] });
-    $("lmap").classList.add("on");
-    $("map").classList.add("off");
-    setTimeout(() => LMAP.invalidateSize(), 50);
+    // Sayfa yerleşimi tamamlanınca boyutu yeniden ölç ve bölgeyi tekrar ortala
+    setTimeout(() => { LMAP.invalidateSize(); LMAP.fitBounds(bounds, { padding: [40, 70], maxZoom: 11 }); }, 200);
     return true;
   } catch (e) {
+    $("lmap").classList.remove("on");
+    $("map").classList.remove("off");
     LMAP = null;
     return false;
   }
