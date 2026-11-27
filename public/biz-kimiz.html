@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Biz kimiz? – Kıvılcım</title>
+<meta name="description" content="Kıvılcım'ı hazırlayan öğrenci ekibi ve projenin amacı.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Ccircle cx='18' cy='18' r='17' fill='%23F7D9C6'/%3E%3Ccircle cx='18' cy='18' r='10' fill='%23F08A4B'/%3E%3Ccircle cx='18' cy='18' r='4' fill='%23E8C547'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400..700&family=Nunito+Sans:wght@400;700&family=Caveat:wght@700&display=swap">
+<link rel="stylesheet" href="/site.css">
+<style>
+.team{display:flex;flex-wrap:wrap;gap:16px;margin-top:20px}
+.member{flex:1 1 210px;background:var(--card);border-radius:18px;padding:20px 22px;border-top:6px solid var(--ember)}
+.member .dept{font-size:14px;font-weight:700;color:var(--ember-text)}
+.member h3{font-size:19px;margin-top:4px}
+.member p{font-size:15px;color:var(--soft);margin-top:6px}
+.facts{display:flex;flex-wrap:wrap;gap:16px;margin-top:20px}
+.facts div{flex:1 1 260px;border-left:4px solid var(--ember);padding:4px 0 4px 16px}
+.facts b{display:block;font-family:'Rubik',Arial,sans-serif;font-size:18px}
+.facts span{font-size:16px;color:var(--soft)}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a class="logo" href="/"><svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="17" fill="#D95A1E" opacity=".25"/><circle cx="18" cy="18" r="10" fill="#F08A4B"/><circle cx="18" cy="18" r="4" fill="#E8C547"/></svg>Kıvılcım</a>
+    <nav class="links" aria-label="Ana menü">
+      <a href="/">Bugünkü risk</a>
+      <a href="/ne-yapmali.html">Ne yapmalıyım?</a>
+      <a href="/daha-yanmadan.html">Daha Yanmadan</a>
+      <a href="/biz-kimiz.html" aria-current="page">Biz kimiz?</a>
+    </nav>
+    <a class="cta" href="/#kayit">SMS ile uyarı al</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="page-head">
+    <p class="hand">Biz kimiz?</p>
+    <h1>Dört bölüm, tek amaç</h1>
+    <p class="lead">Kıvılcım, Abdullah Gül Üniversitesi'nde GLB300 Societal Impact dersi kapsamında dört öğrencinin geliştirdiği bir projedir. Amacımız, yangın riski yüksek günlerde insanları önceden ve anlaşılır bir dille uyararak insan kaynaklı orman yangınlarını azaltmak.</p>
+  </div>
+
+  <section>
+    <h2>Ekip</h2>
+    <div class="team">
+      <div class="member"><p class="dept">Makine Mühendisliği</p><h3>Emirhan Ekerci</h3><p>Yangının fiziği ve risk eşiklerinin kontrolü</p></div>
+      <div class="member"><p class="dept">Endüstri Mühendisliği</p><h3>Selen Varkara</h3><p>Hava verisi akışı ve risk kuralları</p></div>
+      <div class="member"><p class="dept">Endüstri Mühendisliği</p><h3>İremnaz Aytekin</h3><p>Web sitesi, SMS bağlantısı ve kayıt listesi</p></div>
+      <div class="member"><p class="dept">Psikoloji</p><h3>Yusuf Ziya Çatal</h3><p>Uyarı mesajlarının tasarımı ve mesaj anketi</p></div>
+    </div>
+    <p class="note">Dersin öğretim üyesi: Sinan Akyüz</p>
+  </section>
+
+  <section>
+    <h2>Nasıl çalışıyoruz?</h2>
+    <div class="facts">
+      <div><b>Açık veri</b><span>Hava tahminlerini ücretsiz ve açık kaynaklı Open-Meteo servisinden saatlik olarak alıyoruz.</span></div>
+      <div><b>Basit kurallar</b><span>Sıcaklık, nem ve rüzgârı OGM'nin “30-30-30” kuralına dayanan eşiklerle karşılaştırıp Yeşil, Sarı veya Kırmızı risk hesaplıyoruz.</span></div>
+      <div><b>Anlaşılır mesajlar</b><span>Uyarıları, insanların harekete geçmesini kolaylaştıran psikoloji ilkelerine göre yazıyoruz: yer, zaman, sebep ve tek bir kolay eylem.</span></div>
+      <div><b>Gizlilik</b><span>Yalnızca telefon numaranızı ve köyünüzü saklıyoruz; kimseyle paylaşmıyoruz. <a href="/kvkk.html">Aydınlatma metni</a></span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="big-note">Kıvılcım <b>resmî bir uyarı sistemi değildir</b> ve bir öğrenci projesidir. Orman Genel Müdürlüğü'nün ve valiliklerin yasak ve duyuruları her zaman geçerlidir. Yangın görürseniz hemen <b>112</b>'yi arayın.</div>
+    <p class="note">İletişim: [İLETİŞİM E-POSTASI] · Kaynak kodu açıktır.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Kıvılcım · AGÜ GLB300 Societal Impact öğrenci projesi</span>
+    <span>Hava verisi: <a href="https://open-meteo.com/">Open-Meteo</a></span>
+  </div>
+</footer>
+</body>
+</html>

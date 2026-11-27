@@ -21,9 +21,10 @@ a{color:inherit}
 header{background:var(--ink);color:var(--paper)}
 header .wrap{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center;justify-content:space-between;padding-top:18px;padding-bottom:18px}
 .logo{display:flex;align-items:center;gap:12px;text-decoration:none;font-family:'Rubik',Arial,sans-serif;font-size:26px;font-weight:700}
-nav{display:flex;flex-wrap:wrap;gap:8px 24px;font-weight:700}
-nav a{text-decoration:none}
-nav .cta{background:var(--ember);color:var(--ink);padding:10px 20px;border-radius:999px}
+nav.links{display:flex;flex-wrap:wrap;gap:8px 22px;font-weight:700;align-items:center;margin-left:auto}
+nav.links a{text-decoration:none;opacity:.85;white-space:nowrap}
+nav.links a:hover,nav.links a[aria-current]{opacity:1;text-decoration:underline;text-underline-offset:6px}
+.cta{background:var(--ember);color:var(--ink);padding:10px 20px;border-radius:999px;font-weight:700;text-decoration:none}
 .hand{font-family:'Caveat',cursive;font-size:30px;color:var(--ember-text)}
 .top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 24px;margin-top:36px}
 .top h1{font-size:clamp(32px,5vw,44px);line-height:1.1;margin-top:4px}
@@ -35,6 +36,8 @@ nav .cta{background:var(--ember);color:var(--ink);padding:10px 20px;border-radiu
 .risk.red{background:var(--red)}
 .badge{display:inline-block;background:var(--paper);color:var(--ink);font-weight:700;font-size:14px;letter-spacing:.08em;padding:6px 14px;border-radius:999px}
 .risk h2{font-size:clamp(40px,7vw,64px);line-height:1}
+.risk .lvl{font-family:'Rubik',Arial,sans-serif;font-size:22px;font-weight:700;opacity:.95;margin-top:-6px}
+.stat .lbl{font-size:14px;font-weight:700;opacity:.9;margin-top:2px}
 .risk .act{font-size:21px;line-height:1.45;max-width:640px}
 .stats{display:flex;flex-wrap:wrap;gap:14px}
 .stat{flex:1 1 140px;background:rgba(251,247,240,.15);border-radius:16px;padding:14px 18px}
@@ -93,10 +96,10 @@ footer b{color:var(--ember)}
 #window{font-weight:700;white-space:nowrap}
 .risk-cta{align-self:flex-start;background:var(--paper);color:var(--ink);font-weight:700;font-size:17px;padding:12px 22px;border-radius:999px;text-decoration:none}
 @media (max-width:640px){
-  nav a:not(.cta){display:none}
-  header .wrap{padding-top:12px;padding-bottom:12px}
+  header .wrap{padding-top:12px;padding-bottom:10px;gap:10px}
   .logo{font-size:22px}
-  nav .cta{padding:8px 16px;font-size:15px}
+  .cta{padding:8px 16px;font-size:15px;margin-left:auto}
+  nav.links{order:3;flex-basis:100%;flex-wrap:nowrap;overflow-x:auto;gap:18px;font-size:14px;margin-left:0;padding-bottom:4px}
   .top{margin-top:24px}
   .risk{padding:24px 22px;gap:14px}
   .risk .act{font-size:18px}
@@ -106,6 +109,7 @@ footer b{color:var(--ember)}
   .stat .v{font-size:clamp(17px,5.4vw,22px);white-space:nowrap}
   .bar span.minor{visibility:hidden}
   .stat .sa{display:none}
+  .stat .lbl{font-size:12px}
   .risk-cta{font-size:15px;padding:11px 18px;white-space:nowrap}
   .fact{padding:18px 20px}
   .fact .n{font-size:36px}
@@ -139,13 +143,13 @@ footer b{color:var(--ember)}
       <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="17" fill="#D95A1E" opacity=".25"/><circle cx="18" cy="18" r="10" fill="#F08A4B"/><circle cx="18" cy="18" r="4" fill="#E8C547"/></svg>
       Kıvılcım
     </a>
-    <nav>
-      <a href="#risk">Risk durumu</a>
-      <a href="#neden">Neden önemli?</a>
-      <a href="#nasil">Nasıl çalışır?</a>
-      <a href="#muhtar">Muhtarlar için</a>
-      <a class="cta" href="#kayit">SMS ile uyarı al</a>
+    <nav class="links" aria-label="Ana menü">
+      <a href="/" aria-current="page">Bugünkü risk</a>
+      <a href="/ne-yapmali.html">Ne yapmalıyım?</a>
+      <a href="/daha-yanmadan.html">Daha Yanmadan</a>
+      <a href="/biz-kimiz.html">Biz kimiz?</a>
     </nav>
+    <a class="cta" href="#kayit">SMS ile uyarı al</a>
   </div>
 </header>
 
@@ -163,12 +167,13 @@ footer b{color:var(--ember)}
   <section id="risk" class="row loading">
     <div class="risk" id="riskCard" aria-live="polite">
       <div class="when"><span class="badge" id="badge">ÖNÜMÜZDEKİ 24 SAAT</span><span id="window"></span></div>
-      <h2 id="levelTitle">…</h2>
+      <h2 id="answer">…</h2>
+      <p class="lvl" id="levelTitle"></p>
       <p class="act" id="action">Veriler yükleniyor.</p>
       <div class="stats">
-        <div class="stat"><p class="k">Sıcaklık<span class="sa"> (şu an)</span></p><p class="v" id="t">–</p></div>
-        <div class="stat"><p class="k">Nem<span class="sa"> (şu an)</span></p><p class="v" id="h">–</p></div>
-        <div class="stat"><p class="k">Rüzgâr<span class="sa"> (şu an)</span></p><p class="v" id="w">–</p></div>
+        <div class="stat"><p class="k">Sıcaklık<span class="sa"> (şu an)</span></p><p class="v" id="t">–</p><p class="lbl" id="tl"></p></div>
+        <div class="stat"><p class="k">Nem<span class="sa"> (şu an)</span></p><p class="v" id="h">–</p><p class="lbl" id="hl"></p></div>
+        <div class="stat"><p class="k">Rüzgâr<span class="sa"> (şu an)</span></p><p class="v" id="w">–</p><p class="lbl" id="wl"></p></div>
       </div>
       <a class="risk-cta" href="#kayit">Köyünüz için SMS uyarısı alın →</a>
     </div>
@@ -243,6 +248,7 @@ footer b{color:var(--ember)}
           <select name="village" id="village" required><option value="">Seçiniz</option></select>
         </label>
       </div>
+      <p class="small" style="color:var(--soft-dark)">Köyünüz listede yoksa size en yakın yeri seçin. Pilot bölgemiz şimdilik Seydikemer ve Fethiye; yeni köyler ekleyebiliriz.</p>
       <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <label class="consent"><input type="checkbox" id="consent">
         <span><a href="/kvkk.html" target="_blank">Aydınlatma metnini</a> okudum. Telefon numaramın ve köyümün yalnızca yangın riski uyarısı göndermek için saklanmasını kabul ediyorum.</span>
@@ -278,10 +284,15 @@ footer b{color:var(--ember)}
 <script>
 const COLORS = { green: "#4E9F6A", yellow: "#E8B931", red: "#B83A26" };
 const NAMES = { green: "YEŞİL · Normal", yellow: "SARI · Yüksek", red: "KIRMIZI · Kritik" };
+const ANSWERS = { green: "Evet, ama dikkatli olun.", yellow: "Riskli. Mümkünse erteleyin.", red: "Hayır. Bugün yakmayın." };
+const LEVEL_LINE = { green: "Yeşil · Normal risk", yellow: "Sarı · Yüksek risk", red: "Kırmızı · Kritik risk" };
+function tempLabel(t) { return t == null ? "" : t >= 30 ? "çok sıcak" : t >= 25 ? "sıcak" : t >= 15 ? "ılık" : "serin"; }
+function humLabel(h) { return h == null ? "" : h < 20 ? "çok kuru" : h < 30 ? "kuru" : h < 60 ? "normal" : "nemli"; }
+function windLabel(w) { return w == null ? "" : w > 30 ? "çok rüzgârlı" : w > 20 ? "rüzgârlı" : w > 10 ? "hafif rüzgâr" : "sakin"; }
 const ACTIONS = {
   green: "Önümüzdeki 24 saatte özel bir yangın riski görünmüyor. Yine de ateşi asla gözetimsiz bırakmayın.",
   yellow: "Hava sıcak, kuru ve rüzgârlı; ateş kolayca kontrolden çıkabilir. <b>Yakma yapacaksanız serin ve rüzgârsız bir sabahı bekleyin, yanınızda mutlaka su bulundurun.</b>",
-  red: "Hava çok kuru ve rüzgâr güçlü: bu havada tek bir kıvılcım dakikalar içinde tarlaya ve ormana yayılabilir. <b>Bugün anız ve bahçe atığı yakmayın; yakmayı riskin düştüğü bir güne bırakın.</b>",
+  red: "Hava çok kuru ve rüzgâr güçlü: bu havada tek bir kıvılcım dakikalar içinde tarlaya ve ormana yayılabilir. <b>Anız ve bahçe atığı yakmayı riskin düştüğü bir güne bırakın.</b>",
 };
 const PINS = { fethiye: [70, 150], seydikemer: [250, 115], kinik: [285, 200], esen: [170, 250] };
 let DATA = null;
@@ -362,12 +373,16 @@ function render() {
 
   const card = $("riskCard");
   card.className = "risk " + loc.peak;
-  $("levelTitle").textContent = NAMES[loc.peak];
+  $("answer").textContent = ANSWERS[loc.peak];
+  $("levelTitle").textContent = LEVEL_LINE[loc.peak];
   $("window").textContent = loc.window ? `${loc.window.from} – ${loc.window.to} arası` : "";
   $("action").innerHTML = ACTIONS[loc.peak];
   $("t").textContent = fmt(loc.now.temp, " °C");
   $("h").textContent = loc.now.humidity == null ? "–" : `%${String(loc.now.humidity).replace(".", ",")}`;
   $("w").textContent = fmt(loc.now.wind, " km/s");
+  $("tl").textContent = tempLabel(loc.now.temp);
+  $("hl").textContent = humLabel(loc.now.humidity);
+  $("wl").textContent = windLabel(loc.now.wind);
 
   // 24 saat çubukları
   const heights = { green: "34%", yellow: "66%", red: "100%" };

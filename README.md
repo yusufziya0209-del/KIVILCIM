@@ -27,6 +27,10 @@ GitHub'a yapılan her değişiklik Cloudflare'da otomatik olarak yayına alını
 |---|---|---|
 | `public/index.html` | Ana sayfa | İremnaz / Yusuf |
 | `public/admin.html` | Demo paneli | – |
+| `public/ne-yapmali.html` | Yakmadan değerlendirme yolları, önlemler, yangın anında yapılacaklar | Yusuf |
+| `public/daha-yanmadan.html` | Benzer kampanya ve projeler (TEMA, OGM, EFFIS) | Yusuf |
+| `public/biz-kimiz.html` | Ekip ve projenin amacı | – |
+| `public/site.css` | Alt sayfaların ortak görünümü | – |
 | `public/muhtar.html` | Muhtarlar için yazdırılabilir günlük köy duyurusu | Yusuf |
 | `public/kvkk.html` | Aydınlatma metni (köşeli parantezleri doldurun) | Yusuf |
 | `src/kivilcim.js` | Köyler, koordinatlar, **risk eşikleri**, hava verisi, SMS | Selen / Emirhan |
