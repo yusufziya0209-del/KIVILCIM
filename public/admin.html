@@ -77,6 +77,7 @@ td,th{text-align:left;padding:8px;border-bottom:1px solid #E6DDCC;vertical-align
 
 <script>
 const LV = { red: "Kırmızı", yellow: "Sarı", green: "Yeşil" };
+const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 function toggle() {
   const m = document.getElementById("mode").value;
   document.getElementById("historyBox").style.display = m === "history" ? "" : "none";
@@ -101,7 +102,9 @@ async function call(action) {
       document.getElementById("status").innerHTML =
         `Kayıtlı numara: <b>${d.subscribers}</b> (${v})<br>SMS: <b>${d.smsReady ? "hazır (başlık: " + d.sender + ")" : "tanımlı değil – deneme modu"}</b><br>Demo modu: <b>${d.demo ? "açık (" + (d.demo.date || "senaryo") + ", bitiş " + new Date(d.demo.until).toLocaleTimeString("tr-TR") + ")" : "kapalı"}</b>` +
         (d.list.length ? `<table><tr><th>Numara</th><th>Köy</th><th>Kayıt zamanı</th></tr>` +
-          d.list.map((s) => `<tr><td>${s.phone}</td><td>${s.village}</td><td>${new Date(s.at).toLocaleString("tr-TR")}</td></tr>`).join("") + `</table>` : "");
+          d.list.map((s) => `<tr><td>${s.phone}</td><td>${s.village}</td><td>${new Date(s.at).toLocaleString("tr-TR")}</td></tr>`).join("") + `</table>` : "") +
+        (d.villageRequests && d.villageRequests.length ? `<h3 style="margin:20px 0 0">Köy ekleme istekleri (${d.villageRequests.length})</h3><table><tr><th>Köy / mahalle</th><th>İlçe</th><th>Tarih</th></tr>` +
+          d.villageRequests.map((r) => `<tr><td>${esc(r.name)}</td><td>${esc(r.district || "–")}</td><td>${new Date(r.at).toLocaleString("tr-TR")}</td></tr>`).join("") + `</table>` : "");
       out.textContent = "Durum güncellendi.";
       return;
     }

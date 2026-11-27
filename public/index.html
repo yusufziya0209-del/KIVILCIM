@@ -81,6 +81,14 @@ section.how{margin-top:56px}
 .msg{font-weight:700;min-height:1.4em}
 .msg.ok{color:#9FE0B4}.msg.err{color:#FFB4A0}
 .hp{position:absolute;left:-9999px}
+.addv{background:rgba(251,247,240,.08);border-radius:14px;padding:12px 16px}
+.addv summary{cursor:pointer;font-weight:700;color:var(--ember)}
+.addv p{font-size:15px;line-height:1.5;color:var(--soft-dark);margin-top:10px}
+.addv-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.addv-row label{flex:1 1 180px;display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:14px}
+.addv-row input{font:inherit;font-weight:400;font-size:16px;padding:11px 14px;border-radius:10px;border:none;background:var(--paper);color:var(--ink)}
+.btn2{margin-top:12px;font:inherit;font-weight:700;font-size:16px;padding:10px 20px;border-radius:999px;border:2px solid var(--ember);background:transparent;color:var(--ember);cursor:pointer}
+
 .muhtar{flex:2 1 300px;min-width:0;background:var(--card);border-radius:24px;padding:34px;display:flex;flex-direction:column;gap:12px}
 .muhtar h3{font-size:24px}.muhtar p{font-size:16px;line-height:1.5;color:var(--soft)}
 details{margin-top:8px}
@@ -248,7 +256,16 @@ footer b{color:var(--ember)}
           <select name="village" id="village" required><option value="">Seçiniz</option></select>
         </label>
       </div>
-      <p class="small" style="color:var(--soft-dark)">Köyünüz listede yoksa size en yakın yeri seçin. Pilot bölgemiz şimdilik Seydikemer ve Fethiye; yeni köyler ekleyebiliriz.</p>
+      <details class="addv" id="addv">
+        <summary>Köyüm listede yok</summary>
+        <p>Pilot bölgemiz şimdilik Seydikemer ve Fethiye. Köyünüzü yazın, ekleyelim. Bu sırada size en yakın yeri seçip kayıt olabilirsiniz.</p>
+        <div class="addv-row">
+          <label>Köy / mahalle<input type="text" id="reqName" maxlength="60" placeholder="Köyünüzün adı"></label>
+          <label>İlçe<input type="text" id="reqDistrict" maxlength="60" placeholder="ör. Seydikemer"></label>
+        </div>
+        <button type="button" class="btn2" id="reqBtn">Eklenmesini iste</button>
+        <p class="msg" id="reqMsg" role="status"></p>
+      </details>
       <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <label class="consent"><input type="checkbox" id="consent">
         <span><a href="/kvkk.html" target="_blank">Aydınlatma metnini</a> okudum. Telefon numaramın ve köyümün yalnızca yangın riski uyarısı göndermek için saklanmasını kabul ediyorum.</span>
@@ -440,6 +457,23 @@ $("kayit").addEventListener("submit", async (e) => {
     msg.className = "msg err"; msg.textContent = err.message || "Bir sorun oluştu, lütfen tekrar deneyin.";
   } finally {
     btn.disabled = false;
+  }
+});
+
+$("reqBtn").addEventListener("click", async () => {
+  const msg = $("reqMsg");
+  msg.className = "msg"; msg.textContent = "";
+  try {
+    const res = await fetch("/api/village-request", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: $("reqName").value, district: $("reqDistrict").value }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    msg.className = "msg ok"; msg.textContent = data.message;
+    $("reqName").value = ""; $("reqDistrict").value = "";
+  } catch (err) {
+    msg.className = "msg err"; msg.textContent = err.message || "Bir sorun oluştu, lütfen tekrar deneyin.";
   }
 });
 

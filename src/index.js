@@ -116,6 +116,31 @@ async function apiUnsubscribe(req, env) {
 }
 
 // ---------------------------------------------------------------------------
+// /api/village-request  ("Köyüm listede yok")
+// Kişisel veri istemez: sadece köy/mahalle ve ilçe adı saklanır.
+// ---------------------------------------------------------------------------
+async function apiVillageRequest(req, env) {
+  let body = {};
+  try {
+    body = await req.json();
+  } catch {}
+  if (body.website) return json({ ok: true }); // bot tuzağı
+  const clean = (x) => String(x || "").replace(/[<>]/g, "").replace(/\s+/g, " ").trim();
+  const name = clean(body.name);
+  const district = clean(body.district);
+  if (name.length < 2 || name.length > 60) return json({ error: "Lütfen köyünüzün ya da mahallenizin adını yazın." }, 400);
+  if (district.length > 60) return json({ error: "İlçe adı çok uzun." }, 400);
+  await env.KV.put(`req:${Date.now()}`, JSON.stringify({ name, district, at: new Date().toISOString() }));
+  return json({ ok: true, message: `Teşekkürler! "${name}" için isteğinizi aldık. Eklediğimizde listeden seçip kayıt olabilirsiniz.` });
+}
+
+async function loadVillageRequests(env) {
+  const page = await env.KV.list({ prefix: "req:" });
+  const keys = page.keys.slice(-50).reverse(); // en yeni 50 istek
+  return (await Promise.all(keys.map((k) => env.KV.get(k.name, { type: "json" })))).filter(Boolean);
+}
+
+// ---------------------------------------------------------------------------
 // /api/admin  (demo paneli)
 // ---------------------------------------------------------------------------
 async function getData(body) {
@@ -154,6 +179,7 @@ async function apiAdmin(req, env) {
           subscribers: subs.length,
           byVillage,
           list,
+          villageRequests: await loadVillageRequests(env),
           demo: await getDemo(env),
           smsReady: Boolean(env.ILETIMERKEZI_KEY && env.ILETIMERKEZI_HASH),
           sender: env.SMS_SENDER || "APITEST",
@@ -221,6 +247,7 @@ const ROUTES = {
   "/api/risk": { GET: (req, env) => apiRisk(env) },
   "/api/signup": { POST: apiSignup },
   "/api/unsubscribe": { POST: apiUnsubscribe },
+  "/api/village-request": { POST: apiVillageRequest },
   "/api/admin": { POST: apiAdmin },
 };
 
