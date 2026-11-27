@@ -17,3 +17,12 @@ crons = ["0 * * * *"]
 
 [observability]
 enabled = true
+
+# Kendi alan adımız
+[[routes]]
+pattern = "kivilcimuyari.org"
+custom_domain = true
+
+[[routes]]
+pattern = "www.kivilcimuyari.org"
+custom_domain = true
