@@ -39,6 +39,17 @@ section>h2{font-size:28px}
 footer{margin-top:64px;background:var(--ink);color:var(--soft-dark);font-size:14px}
 footer .wrap{max-width:1240px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;padding-top:26px;padding-bottom:26px}
 footer b{color:var(--ember)}
+/* logo */
+.logo{gap:10px}
+.logo .wm{display:flex;flex-direction:column;line-height:1}
+.logo .name{font-family:'Rubik',Arial,sans-serif;font-weight:800;font-size:29px;letter-spacing:.01em;background:linear-gradient(90deg,#FFD36B 0%,#F08A4B 55%,#E8603C 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo .tag{font-family:'Nunito Sans',Arial,sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#C9D3CC;margin-top:5px}
+.logo svg{flex:none;filter:drop-shadow(0 0 5px rgba(240,138,75,.55));animation:kv-glow 2.6s ease-in-out infinite}
+@keyframes kv-glow{50%{filter:drop-shadow(0 0 12px rgba(255,211,107,.95))}}
+@media (prefers-reduced-motion:reduce){.logo svg{animation:none}}
+@media (max-width:640px){.logo .name{font-size:25px}.logo .tag{font-size:9.5px;letter-spacing:.16em}}
+@media (max-width:400px){.logo svg{width:30px;height:30px}.logo .name{font-size:23px}.cta{padding:8px 12px !important;font-size:14px !important}header .wrap{padding-left:16px;padding-right:16px}}
+@media (max-width:340px){.logo svg{width:26px;height:26px}.logo .name{font-size:21px}.logo .tag{font-size:8.5px;letter-spacing:.12em}.cta{padding:7px 10px !important;font-size:13px !important}}
 @media (max-width:640px){
   header .wrap{padding-top:12px;padding-bottom:10px;gap:10px}
   .logo{font-size:22px}
