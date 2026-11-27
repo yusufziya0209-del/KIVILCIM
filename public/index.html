@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kıvılcım – Orman yangını risk uyarısı</title>
+<meta name="description" content="Seydikemer ve Fethiye için saatlik orman yangını riski ve SMS uyarısı.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Ccircle cx='18' cy='18' r='17' fill='%23F7D9C6'/%3E%3Ccircle cx='18' cy='18' r='10' fill='%23F08A4B'/%3E%3Ccircle cx='18' cy='18' r='4' fill='%23E8C547'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400..700&family=Nunito+Sans:wght@400;700&family=Caveat:wght@700&display=swap">
+<style>
+:root{--ink:#1F2A24;--paper:#FBF7F0;--card:#F2EBDF;--soft:#4A5568;--soft-dark:#C9D3CC;--ember:#F08A4B;--ember-text:#B5461A;--green:#4E9F6A;--yellow:#E8B931;--red:#B83A26;--line:#E6DDCC}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Nunito Sans',Arial,sans-serif}
+h1,h2,h3{font-family:'Rubik',Arial,sans-serif;margin:0}
+p{margin:0}
+a{color:inherit}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+header{background:var(--ink);color:var(--paper)}
+header .wrap{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center;justify-content:space-between;padding-top:18px;padding-bottom:18px}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;font-family:'Rubik',Arial,sans-serif;font-size:26px;font-weight:700}
+nav{display:flex;flex-wrap:wrap;gap:8px 24px;font-weight:700}
+nav a{text-decoration:none}
+nav .cta{background:var(--ember);color:var(--ink);padding:10px 20px;border-radius:999px}
+.hand{font-family:'Caveat',cursive;font-size:30px;color:var(--ember-text)}
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 24px;margin-top:36px}
+.top h1{font-size:clamp(32px,5vw,44px);line-height:1.1;margin-top:4px}
+.meta{font-size:15px;color:var(--soft)}
+.demo-banner{display:none;margin-top:20px;background:#FFF1C9;border:2px dashed #C99A06;border-radius:16px;padding:14px 20px;font-weight:700}
+.row{display:flex;flex-wrap:wrap;gap:24px;margin-top:24px}
+.risk{flex:3 1 480px;min-width:0;border-radius:24px;padding:32px 36px;color:var(--paper);background:var(--green);display:flex;flex-direction:column;gap:18px;transition:background .3s}
+.risk.yellow{background:#8A6A00}
+.risk.red{background:var(--red)}
+.badge{display:inline-block;background:var(--paper);color:var(--ink);font-weight:700;font-size:14px;letter-spacing:.08em;padding:6px 14px;border-radius:999px}
+.risk h2{font-size:clamp(40px,7vw,64px);line-height:1}
+.risk .act{font-size:21px;line-height:1.45;max-width:640px}
+.stats{display:flex;flex-wrap:wrap;gap:14px}
+.stat{flex:1 1 140px;background:rgba(251,247,240,.15);border-radius:16px;padding:14px 18px}
+.stat .k{font-size:15px}.stat .v{font-family:'Rubik',Arial,sans-serif;font-size:34px;font-weight:700;margin-top:2px}
+.side{flex:2 1 340px;min-width:0;background:var(--card);border-radius:24px;padding:26px;display:flex;flex-direction:column;gap:14px}
+.side-head{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
+.side h3{font-size:22px}
+select,input{font:inherit}
+.small{font-size:14px;color:var(--soft)}
+.map{width:100%;height:auto;border-radius:16px}
+.map text{font:700 15px 'Nunito Sans',Arial,sans-serif;fill:var(--ink)}
+.panel{margin-top:24px;background:#FFFDF8;border:1px solid var(--line);border-radius:24px;padding:26px 30px}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:14px;color:var(--soft)}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.bars{display:flex;gap:4px;align-items:flex-end;height:130px;margin-top:18px}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;height:100%;min-width:0}
+.bar i{display:block;width:100%;border-radius:6px}
+.bar span{font-size:11px;color:var(--soft)}
+section.how{margin-top:56px}
+.how h2{font-size:32px;margin-top:2px}
+.cards{display:flex;flex-wrap:wrap;gap:20px;margin-top:22px}
+.lv{flex:1 1 250px;background:var(--card);border-radius:20px;padding:22px 24px;border-top:8px solid var(--green)}
+.lv.y{border-top-color:var(--yellow)}.lv.r{border-top-color:var(--red)}
+.lv h3{font-size:20px}.lv p{margin-top:8px;font-size:16px;line-height:1.5;color:var(--soft)}
+.signup{flex:3 1 460px;min-width:0;background:var(--ink);color:var(--paper);border-radius:24px;padding:34px 38px;display:flex;flex-direction:column;gap:16px}
+.signup h2{font-size:30px}
+.signup .lead{color:var(--soft-dark);font-size:17px;line-height:1.5}
+.fields{display:flex;flex-wrap:wrap;gap:16px}
+.fields label{flex:1 1 220px;display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:15px}
+.fields input,.fields select{font-weight:400;font-size:17px;padding:14px 16px;border-radius:12px;border:none;background:var(--paper);color:var(--ink)}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:1.45;color:var(--soft-dark)}
+.consent input{width:20px;height:20px;margin-top:2px;flex:none}
+.consent a{color:var(--ember)}
+.btn{align-self:flex-start;font:inherit;font-size:18px;font-weight:700;padding:15px 30px;border-radius:999px;border:none;background:var(--ember);color:var(--ink);cursor:pointer}
+.btn:disabled{opacity:.6;cursor:wait}
+.msg{font-weight:700;min-height:1.4em}
+.msg.ok{color:#9FE0B4}.msg.err{color:#FFB4A0}
+.hp{position:absolute;left:-9999px}
+.muhtar{flex:2 1 300px;min-width:0;background:var(--card);border-radius:24px;padding:34px;display:flex;flex-direction:column;gap:12px}
+.muhtar h3{font-size:24px}.muhtar p{font-size:16px;line-height:1.5;color:var(--soft)}
+details{margin-top:8px}
+summary{cursor:pointer;font-weight:700}
+.unsub{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.unsub input{flex:1 1 180px;padding:12px 14px;border-radius:12px;border:2px solid #D9CFBD;background:#FFFDF8}
+.unsub button{font:inherit;font-weight:700;padding:12px 18px;border-radius:999px;border:2px solid var(--ink);background:transparent;cursor:pointer}
+footer{margin-top:64px;background:var(--ink);color:var(--soft-dark);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;padding-top:26px;padding-bottom:26px}
+footer b{color:var(--ember)}
+.loading{opacity:.55}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a class="logo" href="/">
+      <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="17" fill="#D95A1E" opacity=".25"/><circle cx="18" cy="18" r="10" fill="#F08A4B"/><circle cx="18" cy="18" r="4" fill="#E8C547"/></svg>
+      Kıvılcım
+    </a>
+    <nav>
+      <a href="#risk">Risk durumu</a>
+      <a href="#nasil">Nasıl çalışır?</a>
+      <a href="#muhtar">Muhtarlar için</a>
+      <a class="cta" href="#kayit">SMS ile uyarı al</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="top">
+    <div>
+      <p class="hand">Seydikemer – Fethiye</p>
+      <h1>Bugün yakmak güvenli mi?</h1>
+    </div>
+    <p class="meta" id="meta">Hava verisi yükleniyor…</p>
+  </div>
+
+  <div class="demo-banner" id="demoBanner"></div>
+
+  <section id="risk" class="row loading">
+    <div class="risk" id="riskCard" aria-live="polite">
+      <div><span class="badge" id="badge">ÖNÜMÜZDEKİ 24 SAAT</span> <span id="window"></span></div>
+      <h2 id="levelTitle">…</h2>
+      <p class="act" id="action">Veriler yükleniyor.</p>
+      <div class="stats">
+        <div class="stat"><p class="k">Sıcaklık (şu an)</p><p class="v" id="t">–</p></div>
+        <div class="stat"><p class="k">Nem (şu an)</p><p class="v" id="h">–</p></div>
+        <div class="stat"><p class="k">Rüzgâr (şu an)</p><p class="v" id="w">–</p></div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="side-head">
+        <h3>Köylere göre risk</h3>
+        <label class="small">Köyünüz:
+          <select id="villageSelect"></select>
+        </label>
+      </div>
+      <svg class="map" viewBox="0 0 440 300" role="img" aria-label="Köylerin risk haritası" id="map">
+        <rect width="440" height="300" fill="#E4DCCB"/>
+        <path d="M0 210 C60 190 90 240 150 230 C200 222 210 270 260 300 L0 300 Z" fill="#BFD7DD"/>
+        <path d="M240 40 C300 30 360 60 410 50 L440 50 L440 0 L220 0 Z" fill="#D3DCC4"/>
+        <path d="M60 160 C140 120 220 140 300 100 C340 80 380 110 420 90" fill="none" stroke="#C9BFAE" stroke-width="3" stroke-dasharray="6 6"/>
+        <g id="pins"></g>
+      </svg>
+      <p class="small">Harita temsilidir. Riskler saatlik hava tahmininden hesaplanır.</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="side-head">
+      <h3 id="barsTitle">Önümüzdeki 24 saat</h3>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--green)"></i>Yeşil · Normal</span>
+        <span><i class="sw" style="background:var(--yellow)"></i>Sarı · Yüksek</span>
+        <span><i class="sw" style="background:var(--red)"></i>Kırmızı · Kritik</span>
+      </div>
+    </div>
+    <div class="bars" id="bars"></div>
+    <p class="small" id="safe" style="margin-top:14px"></p>
+  </section>
+
+  <section class="how" id="nasil">
+    <p class="hand">Nasıl çalışır?</p>
+    <h2>Sıcağı hissederiz, kuru havayı hissedemeyiz</h2>
+    <div class="cards">
+      <div class="lv"><h3>Yeşil · Normal</h3><p>Özel bir tehlike yok. Yine de ateşi asla gözetimsiz bırakmayın.</p></div>
+      <div class="lv y"><h3>Sarı · Yüksek</h3><p>OGM’nin “30-30-30” kuralı: 30 °C üstü sıcaklık, %30 altı nem ve 30 km/s üstü rüzgâr.</p></div>
+      <div class="lv r"><h3>Kırmızı · Kritik</h3><p>Nem %20’nin altında ve rüzgâr 30 km/s’nin üstünde. Bu saatlerde kesinlikle yakma yapılmamalı.</p></div>
+    </div>
+  </section>
+
+  <section class="row" style="margin-top:56px">
+    <form class="signup" id="kayit" novalidate>
+      <h2>Riskli günlerde SMS ile haber alın</h2>
+      <p class="lead">Yalnızca köyünüz için risk yükseldiğinde mesaj gelir. Uygulama indirmenize gerek yok.</p>
+      <div class="fields">
+        <label>Telefon numaranız
+          <input type="tel" name="phone" id="phone" placeholder="05XX XXX XX XX" autocomplete="tel" required>
+        </label>
+        <label>Köyünüz / mahalleniz
+          <select name="village" id="village" required><option value="">Seçiniz</option></select>
+        </label>
+      </div>
+      <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <label class="consent"><input type="checkbox" id="consent">
+        <span><a href="/kvkk.html" target="_blank">Aydınlatma metnini</a> okudum. Telefon numaramın ve köyümün yalnızca yangın riski uyarısı göndermek için saklanmasını kabul ediyorum.</span>
+      </label>
+      <button class="btn" type="submit" id="submitBtn">Uyarılara kaydol</button>
+      <p class="msg" id="formMsg" role="status"></p>
+    </form>
+
+    <div class="muhtar" id="muhtar">
+      <p class="hand">Muhtarlar ve ziraat odaları için</p>
+      <h3>Köyünüzü birlikte kaydedelim</h3>
+      <p>Onay veren köylülerinizi kaydetmek veya günlük risk durumunu köyde duyurmak isterseniz bize ulaşın: <b>[İLETİŞİM E-POSTASI]</b></p>
+      <details>
+        <summary>Kayıttan çıkmak istiyorum</summary>
+        <form class="unsub" id="unsubForm">
+          <input type="tel" id="unsubPhone" placeholder="05XX XXX XX XX" aria-label="Telefon numarası">
+          <button type="submit">Listeden çık</button>
+        </form>
+        <p class="small" id="unsubMsg" role="status" style="margin-top:8px"></p>
+      </details>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Kıvılcım · AGÜ GLB300 Societal Impact öğrenci projesi · Resmî bir uyarı sistemi değildir; OGM ve valilik yasakları her zaman geçerlidir.</span>
+    <span>Hava verisi: <a href="https://open-meteo.com/">Open-Meteo</a> · Yangın görürseniz hemen <b>112</b>’yi arayın</span>
+  </div>
+</footer>
+
+<script>
+const COLORS = { green: "#4E9F6A", yellow: "#E8B931", red: "#B83A26" };
+const NAMES = { green: "YEŞİL · Normal", yellow: "SARI · Yüksek", red: "KIRMIZI · Kritik" };
+const ACTIONS = {
+  green: "Önümüzdeki 24 saatte özel bir yangın riski görünmüyor. Yine de ateşi asla gözetimsiz bırakmayın.",
+  yellow: "Hava sıcak, kuru ve rüzgârlı. Anız veya bahçe atığı yakacaksanız daha serin ve sakin bir günü bekleyin.",
+  red: "Hava çok kuru ve rüzgâr güçlü. Küçük bir kıvılcım bile çok hızlı yayılabilir. <b>Anız ve bahçe atığı yakmayın, yakmak için daha güvenli bir günü bekleyin.</b>",
+};
+const PINS = { fethiye: [70, 150], seydikemer: [250, 115], kinik: [285, 200], esen: [170, 250] };
+let DATA = null;
+let selected = localStorage.getItem("kivilcim-village") || "seydikemer";
+
+const $ = (id) => document.getElementById(id);
+const fmt = (n, unit) => (n == null ? "–" : `${String(n).replace(".", ",")}${unit}`);
+
+async function load() {
+  try {
+    const res = await fetch("/api/risk");
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Veri alınamadı");
+    DATA = data;
+    fillSelects();
+    render();
+  } catch (e) {
+    $("meta").textContent = "Hava verisi şu an alınamıyor. Lütfen biraz sonra tekrar deneyin.";
+  } finally {
+    $("risk").classList.remove("loading");
+  }
+}
+
+function fillSelects() {
+  const sel = $("villageSelect"), form = $("village");
+  if (sel.options.length) return;
+  for (const l of DATA.locations) {
+    sel.add(new Option(l.name, l.id));
+    form.add(new Option(l.name, l.id));
+  }
+  if (!DATA.locations.some((l) => l.id === selected)) selected = DATA.locations[0].id;
+  sel.value = selected;
+  sel.onchange = () => { selected = sel.value; try { localStorage.setItem("kivilcim-village", selected); } catch {} render(); };
+}
+
+function render() {
+  const loc = DATA.locations.find((l) => l.id === selected);
+  const t = new Date(DATA.generatedAt);
+  $("meta").textContent = `Son güncelleme: ${t.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })} · Kaynak: ${DATA.source}`;
+
+  const banner = $("demoBanner");
+  banner.style.display = DATA.demo ? "block" : "none";
+  banner.textContent = DATA.demo ? `DEMO MODU: Şu an gerçek tahmin değil, ${DATA.source} gösteriliyor.` : "";
+
+  const card = $("riskCard");
+  card.className = "risk " + loc.peak;
+  $("levelTitle").textContent = NAMES[loc.peak];
+  $("window").textContent = loc.window ? `${loc.window.from} – ${loc.window.to} arası` : "";
+  $("action").innerHTML = ACTIONS[loc.peak];
+  $("t").textContent = fmt(loc.now.temp, " °C");
+  $("h").textContent = loc.now.humidity == null ? "–" : `%${String(loc.now.humidity).replace(".", ",")}`;
+  $("w").textContent = fmt(loc.now.wind, " km/s");
+
+  // 24 saat çubukları
+  const heights = { green: "34%", yellow: "66%", red: "100%" };
+  $("bars").innerHTML = loc.hours.map((h) =>
+    `<div class="bar" title="${h.time.slice(11, 16)} · ${NAMES[h.level]} · ${h.temp} °C, %${h.humidity} nem, ${h.wind} km/s">` +
+    `<i style="height:${heights[h.level]};background:${COLORS[h.level]}"></i><span>${h.time.slice(11, 13)}</span></div>`
+  ).join("");
+  $("barsTitle").textContent = DATA.demo && DATA.source.includes("arşiv") ? "O günün 24 saati" : "Önümüzdeki 24 saat";
+  $("safe").innerHTML = loc.peak === "green"
+    ? "Önümüzdeki saatlerde risk normal görünüyor."
+    : loc.safeFrom
+      ? `Riskin normale döndüğü saat: <b>${loc.safeFrom.slice(11, 16)}</b> (${loc.safeFrom.slice(8, 10)}.${loc.safeFrom.slice(5, 7)}).`
+      : "Önümüzdeki 24 saat boyunca risk devam ediyor.";
+
+  // Harita
+  $("pins").innerHTML = DATA.locations.map((l) => {
+    const [x, y] = PINS[l.id] || [220, 150];
+    const ring = l.id === selected ? `<circle cx="${x}" cy="${y}" r="19" fill="none" stroke="#1F2A24" stroke-width="3"/>` : "";
+    const label = { green: "Yeşil", yellow: "Sarı", red: "Kırmızı" }[l.peak];
+    return `${ring}<circle cx="${x}" cy="${y}" r="13" fill="${COLORS[l.peak]}"/><text x="${x + (l.id === selected ? 25 : 20)}" y="${y + 5}">${l.name.replace(" merkez", "")} · ${label}</text>`;
+  }).join("");
+}
+
+$("kayit").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const msg = $("formMsg"), btn = $("submitBtn");
+  msg.className = "msg"; msg.textContent = "";
+  btn.disabled = true;
+  try {
+    const res = await fetch("/api/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        phone: $("phone").value,
+        village: $("village").value,
+        consent: $("consent").checked,
+        website: e.target.website.value,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    msg.className = "msg ok"; msg.textContent = data.message;
+    e.target.reset();
+  } catch (err) {
+    msg.className = "msg err"; msg.textContent = err.message || "Bir sorun oluştu, lütfen tekrar deneyin.";
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+$("unsubForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const res = await fetch("/api/unsubscribe", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phone: $("unsubPhone").value }),
+  });
+  const data = await res.json();
+  $("unsubMsg").textContent = data.message || data.error;
+});
+
+load();
+setInterval(load, 10 * 60 * 1000);
+</script>
+</body>
+</html>

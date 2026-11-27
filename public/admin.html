@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Kıvılcım – Demo paneli</title>
+<style>
+body{margin:0;background:#FBF7F0;color:#1F2A24;font-family:system-ui,Arial,sans-serif}
+.wrap{max-width:880px;margin:0 auto;padding:32px 20px 64px}
+h1{margin:0 0 4px}
+.card{background:#fff;border:1px solid #E6DDCC;border-radius:16px;padding:20px 24px;margin-top:20px}
+label{display:block;font-weight:600;margin:12px 0 6px}
+input,select{font:inherit;padding:10px 12px;border-radius:10px;border:1px solid #C9BFAE;background:#FFFDF8;width:100%;max-width:320px;box-sizing:border-box}
+.inline{display:flex;flex-wrap:wrap;gap:12px}
+.inline>div{flex:1 1 150px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+button{font:inherit;font-weight:700;padding:11px 18px;border-radius:999px;border:2px solid #1F2A24;background:transparent;cursor:pointer}
+button.primary{background:#1F2A24;color:#FBF7F0}
+button.danger{background:#B83A26;border-color:#B83A26;color:#fff}
+pre{white-space:pre-wrap;background:#F2EBDF;border-radius:12px;padding:14px;font-size:14px;max-height:520px;overflow:auto}
+.hint{color:#4A5568;font-size:14px;line-height:1.5}
+.lv-red{color:#B83A26;font-weight:700}.lv-yellow{color:#8A6A00;font-weight:700}.lv-green{color:#2F7A4A;font-weight:700}
+table{border-collapse:collapse;width:100%;margin-top:10px;font-size:15px}
+td,th{text-align:left;padding:8px;border-bottom:1px solid #E6DDCC;vertical-align:top}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Kıvılcım · Demo paneli</h1>
+  <p class="hint">Bu sayfa sadece ekip içindir. Şifre, Netlify'daki <b>ADMIN_PASSWORD</b> değeridir.</p>
+
+  <div class="card">
+    <label for="pw">Şifre</label>
+    <input type="password" id="pw" autocomplete="current-password">
+    <div class="btns"><button onclick="call('status')">Durumu göster</button></div>
+    <div id="status" class="hint" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card">
+    <label for="mode">Hangi veriyle?</label>
+    <select id="mode" onchange="toggle()">
+      <option value="history">Geçmiş bir gün (gerçek arşiv verisi)</option>
+      <option value="scenario">Senaryo (değerleri elle gir)</option>
+      <option value="live">Canlı tahmin (bugün)</option>
+    </select>
+
+    <div id="historyBox">
+      <label for="date">Tarih</label>
+      <input type="date" id="date" value="2021-07-29" min="1940-01-01">
+      <p class="hint">Örn. 29 Temmuz 2021 (Muğla yangınlarının başladığı günler) veya bu yazki Seydikemer yangınının tarihi.</p>
+    </div>
+
+    <div id="scenarioBox" style="display:none">
+      <div class="inline">
+        <div><label for="temp">Sıcaklık (°C)</label><input type="number" id="temp" value="36"></div>
+        <div><label for="humidity">Nem (%)</label><input type="number" id="humidity" value="15"></div>
+        <div><label for="wind">Rüzgâr (km/s)</label><input type="number" id="wind" value="38"></div>
+      </div>
+      <p class="hint">Senaryo 12:00–18:00 arası bu değerlerle hesaplanır. Jüriye "örnek senaryo" olduğunu söyleyin.</p>
+    </div>
+
+    <div class="btns">
+      <button class="primary" onclick="call('preview')">1. Önizle (SMS gitmez)</button>
+      <button onclick="call('demoOn')">2. Siteyi demo moduna al</button>
+      <button class="danger" onclick="sendNow()">3. SMS gönder</button>
+      <button onclick="call('demoOff')">Demo modunu kapat</button>
+    </div>
+    <p class="hint">Demo modu 2 saat sonra kendiliğinden kapanır. Netlify'da SMS bilgileri tanımlı değilse "SMS gönder" sadece deneme yapar, gerçek SMS gitmez.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin:0">Sonuç</h3>
+    <div id="out" class="hint">Henüz bir işlem yapılmadı.</div>
+  </div>
+</div>
+
+<script>
+const LV = { red: "Kırmızı", yellow: "Sarı", green: "Yeşil" };
+function toggle() {
+  const m = document.getElementById("mode").value;
+  document.getElementById("historyBox").style.display = m === "history" ? "" : "none";
+  document.getElementById("scenarioBox").style.display = m === "scenario" ? "" : "none";
+}
+function payload(action) {
+  const v = (id) => document.getElementById(id).value;
+  return { action, password: v("pw"), mode: v("mode"), date: v("date"), temp: v("temp"), humidity: v("humidity"), wind: v("wind") };
+}
+function sendNow() {
+  if (window.confirm("Seçili veriye göre riskli köylerdeki TÜM kayıtlı numaralara SMS gönderilecek. Emin misiniz?")) call("send");
+}
+async function call(action) {
+  const out = document.getElementById("out");
+  out.textContent = "Çalışıyor…";
+  try {
+    const res = await fetch("/api/admin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload(action)) });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error);
+    if (action === "status") {
+      const v = Object.entries(d.byVillage).map(([k, n]) => `${k}: ${n}`).join(", ") || "–";
+      document.getElementById("status").innerHTML =
+        `Kayıtlı numara: <b>${d.subscribers}</b> (${v})<br>SMS: <b>${d.smsReady ? "hazır (başlık: " + d.sender + ")" : "tanımlı değil – deneme modu"}</b><br>Demo modu: <b>${d.demo ? "açık (" + (d.demo.date || "senaryo") + ", bitiş " + new Date(d.demo.until).toLocaleTimeString("tr-TR") + ")" : "kapalı"}</b>`;
+      out.textContent = "Durum güncellendi.";
+      return;
+    }
+    if (action === "demoOn") { out.innerHTML = "Site demo moduna alındı. Ana sayfayı yenileyin."; return; }
+    if (action === "demoOff") { out.innerHTML = "Demo modu kapatıldı, site canlı tahmine döndü."; return; }
+    let html = `<p><b>Veri:</b> ${d.source} · <b>Toplam kayıtlı:</b> ${d.totalSubscribers}</p><table><tr><th>Köy</th><th>Risk</th><th>Kişi</th><th>Mesaj / durum</th></tr>`;
+    for (const r of d.results) {
+      let status = r.skipped || r.error || (r.preview ? "Önizleme" : r.dryRun ? "DENEME: SMS bilgileri tanımlı değil, gönderilmedi" : `Gönderildi (sipariş no: ${r.orderId || "-"})`);
+      if (r.error) status = `<span class="lv-red">HATA: ${r.error}</span>`;
+      const text = r.text ? `<br><i>${r.text}</i> <span class="hint">(${r.length} karakter${r.length > 160 ? " – 1 SMS'e sığmıyor!" : ""})</span>` : "";
+      html += `<tr><td>${r.village}</td><td class="lv-${r.level}">${LV[r.level]}</td><td>${r.recipients}</td><td>${status}${text}</td></tr>`;
+    }
+    out.innerHTML = html + "</table>";
+  } catch (e) {
+    out.innerHTML = `<span class="lv-red">${e.message}</span>`;
+  }
+}
+</script>
+</body>
+</html>
