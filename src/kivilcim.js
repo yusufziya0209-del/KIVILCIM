@@ -5,10 +5,11 @@
 // 1) KÖYLER / NOKTALAR (koordinatlar yaklaşık; Selen/Emirhan kontrol edebilir)
 // ---------------------------------------------------------------------------
 export const LOCATIONS = [
-  { id: "seydikemer", name: "Seydikemer merkez", lat: 36.65, lon: 29.35 },
-  { id: "esen", name: "Eşen", lat: 36.43, lon: 29.27 },
-  { id: "kinik", name: "Kınık", lat: 36.36, lon: 29.32 },
-  { id: "fethiye", name: "Fethiye", lat: 36.62, lon: 29.12 },
+  // "yerde": mesajlarda kullanılan "-de/-da" hâli (ör. "Kınık'ta")
+  { id: "seydikemer", name: "Seydikemer merkez", yerde: "Seydikemer'de", lat: 36.65, lon: 29.35 },
+  { id: "esen", name: "Eşen", yerde: "Eşen'de", lat: 36.43, lon: 29.27 },
+  { id: "kinik", name: "Kınık", yerde: "Kınık'ta", lat: 36.36, lon: 29.32 },
+  { id: "fethiye", name: "Fethiye", yerde: "Fethiye'de", lat: 36.62, lon: 29.12 },
 ];
 
 // ---------------------------------------------------------------------------

@@ -27,6 +27,7 @@ GitHub'a yapılan her değişiklik Cloudflare'da otomatik olarak yayına alını
 |---|---|---|
 | `public/index.html` | Ana sayfa | İremnaz / Yusuf |
 | `public/admin.html` | Demo paneli | – |
+| `public/muhtar.html` | Muhtarlar için yazdırılabilir günlük köy duyurusu | Yusuf |
 | `public/kvkk.html` | Aydınlatma metni (köşeli parantezleri doldurun) | Yusuf |
 | `src/kivilcim.js` | Köyler, koordinatlar, **risk eşikleri**, hava verisi, SMS | Selen / Emirhan |
 | `src/mesajlar.js` | **SMS metinleri** | Yusuf |
