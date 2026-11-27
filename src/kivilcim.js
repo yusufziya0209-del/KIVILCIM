@@ -171,14 +171,14 @@ export function normalizePhone(input) {
 
 // ---------------------------------------------------------------------------
 // 5) SMS GÖNDERİMİ (İleti Merkezi)
-//    Netlify'da şu ortam değişkenleri tanımlanınca gerçek SMS gider:
+//    Cloudflare'da (Settings > Variables and Secrets) şu değerler tanımlanınca gerçek SMS gider:
 //    ILETIMERKEZI_KEY, ILETIMERKEZI_HASH, SMS_SENDER (onaylı başlık; yoksa APITEST)
 //    Tanımlı değilse "deneme modu": SMS gitmez, sadece ne gideceği gösterilir.
 // ---------------------------------------------------------------------------
-export async function sendSms(numbers, text) {
-  const key = process.env.ILETIMERKEZI_KEY;
-  const hash = process.env.ILETIMERKEZI_HASH;
-  const sender = process.env.SMS_SENDER || "APITEST";
+export async function sendSms(env, numbers, text) {
+  const key = env.ILETIMERKEZI_KEY;
+  const hash = env.ILETIMERKEZI_HASH;
+  const sender = env.SMS_SENDER || "APITEST";
   if (!numbers.length) return { dryRun: !key, sender, count: 0, text, note: "Kayıtlı numara yok." };
   if (!key || !hash) return { dryRun: true, sender, count: numbers.length, text };
 

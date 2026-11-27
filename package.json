@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "description": "Kıvılcım – orman yangını erken uyarı ve risk iletişimi sitesi (AGÜ GLB300)",
-  "dependencies": {
-    "@netlify/blobs": "^8.1.0"
+  "scripts": {
+    "deploy": "wrangler deploy"
   }
 }

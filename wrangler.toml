@@ -1,0 +1,17 @@
+name = "kivilcim-uyari"
+main = "src/index.js"
+compatibility_date = "2026-11-19"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "c37ddc919cad4b3d89f242656498591e"
+
+[triggers]
+crons = ["0 * * * *"]
+
+[observability]
+enabled = true
