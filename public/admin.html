@@ -76,6 +76,26 @@ td,th{text-align:left;padding:8px;border-bottom:1px solid #E6DDCC;vertical-align
       <div><label for="scanStart">Başlangıç</label><input type="date" id="scanStart" value="2021-06-01"></div>
       <div><label for="scanEnd">Bitiş</label><input type="date" id="scanEnd" value="2021-09-30"></div>
     </div>
+    <details style="margin-top:14px" open>
+      <summary style="font-weight:700;cursor:pointer">Eşik deneme alanı</summary>
+      <p class="hint">Kendi eşiklerinizi yazın; tarama sonucunda bu eşiklerle kaç riskli gün çıktığı ve yangın günlerinin yakalanıp yakalanmadığı da gösterilir. Canlı sistemi değiştirmez.</p>
+      <div class="inline">
+        <div><label>Rüzgâr türü</label><select id="cWind"><option value="gust">Rüzgâr hamlesi (gust)</option><option value="mean">Saatlik ortalama</option></select></div>
+      </div>
+      <p style="margin:12px 0 0;font-weight:700" class="lv-red">Kırmızı: nem &lt; … VE rüzgâr &gt; …</p>
+      <div class="inline">
+        <div><label for="cRedHum">Nem (%) küçüktür</label><input type="number" id="cRedHum" value="20"></div>
+        <div><label for="cRedWind">Rüzgâr (km/s) büyüktür</label><input type="number" id="cRedWind" value="45"></div>
+      </div>
+      <p style="margin:12px 0 0;font-weight:700" class="lv-yellow">Sarı: sıcaklık &gt; … VE nem &lt; … VE rüzgâr &gt; …</p>
+      <div class="inline">
+        <div><label for="cYTemp">Sıcaklık (°C) büyüktür</label><input type="number" id="cYTemp" value="30"></div>
+        <div><label for="cYHum">Nem (%) küçüktür</label><input type="number" id="cYHum" value="30"></div>
+        <div><label for="cYWind">Rüzgâr (km/s) büyüktür</label><input type="number" id="cYWind" value="40"></div>
+      </div>
+      <label for="fireDates">Bilinen yangın günleri (virgülle ayırın, ör. 2021-07-29, 2021-08-01)</label>
+      <input type="text" id="fireDates" placeholder="Kaynaktan kontrol ederek girin" style="max-width:100%">
+    </details>
     <div class="btns"><button class="primary" onclick="scan()">Tara</button></div>
     <div id="scanOut" class="hint" style="margin-top:12px"></div>
   </div>
@@ -98,17 +118,32 @@ function payload(action) {
   const v = (id) => document.getElementById(id).value;
   return { action, password: v("pw"), mode: v("mode"), date: v("date"), temp: v("temp"), humidity: v("humidity"), wind: v("wind") };
 }
+const v = (id) => document.getElementById(id).value;
 async function scan() {
   const out = document.getElementById("scanOut");
   out.textContent = "Taranıyor… (birkaç saniye sürebilir)";
   try {
     const res = await fetch("/api/admin", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "scan", password: document.getElementById("pw").value, start: document.getElementById("scanStart").value, end: document.getElementById("scanEnd").value }) });
+      body: JSON.stringify({ action: "scan", password: document.getElementById("pw").value, start: document.getElementById("scanStart").value, end: document.getElementById("scanEnd").value,
+        custom: { windType: v("cWind"), redHum: v("cRedHum"), redWind: v("cRedWind"), yTemp: v("cYTemp"), yHum: v("cYHum"), yWind: v("cYWind") } }) });
     const d = await res.json();
     if (!res.ok) throw new Error(d.error);
     const NM = { seydikemer: "Seydikemer", esen: "Eşen", kinik: "Kınık", fethiye: "Fethiye" };
     let html = `<p><b>${d.totalDays} gün tarandı (kurallar, saatlik ortalama rüzgârla):</b> <span class="lv-red">${d.red} Kırmızı</span> · <span class="lv-yellow">${d.yellow} Sarı</span> · <span class="lv-green">${d.green} Yeşil</span></p>`;
     html += `<p><b>Aynı kurallar, rüzgâr hamlesiyle (gust):</b> <span class="lv-red">${d.gust.red} Kırmızı</span> · <span class="lv-yellow">${d.gust.yellow} Sarı</span> · <span class="lv-green">${d.gust.green} Yeşil</span></p>`;
+    if (d.custom) {
+      const c = d.custom, risky = c.red + c.yellow;
+      const pct = Math.round((risky / d.totalDays) * 100);
+      html += `<div style="background:#FFF1C9;border-radius:12px;padding:12px 16px;margin:10px 0"><p style="margin:0"><b>Sizin eşiklerinizle (${c.windType === "gust" ? "hamle" : "ortalama rüzgâr"}):</b> <span class="lv-red">${c.red} Kırmızı</span> · <span class="lv-yellow">${c.yellow} Sarı</span> · <span class="lv-green">${c.green} Yeşil</span> → taranan günlerin <b>%${pct}</b> kadarında uyarı gider.</p>`;
+      const fires = v("fireDates").split(",").map((x) => x.trim()).filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x));
+      if (fires.length) {
+        const map = Object.fromEntries(d.days.map((x) => [x.date, x.peakCustom]));
+        const caught = fires.filter((f) => map[f] && map[f] !== "green").length;
+        html += `<p style="margin:6px 0 0"><b>Yangın günleri:</b> ${caught}/${fires.length} yakalandı — ` +
+          fires.map((f) => `${f}: ${map[f] ? `<span class="lv-${map[f]}">${LV[map[f]]}</span>` : "aralık dışında"}`).join(" · ") + `</p>`;
+      }
+      html += `</div>`;
+    }
     html += `<p><b>Dönemin en uç değerleri</b></p><table><tr><th>Köy</th><th>En yüksek sıcaklık</th><th>En düşük nem</th><th>En güçlü ort. rüzgâr</th><th>En güçlü hamle</th><th>Nem &lt;%20 (saat)</th><th>Nem &lt;%30 (saat)</th><th>Rüzgâr &gt;30 (saat)</th></tr>` +
       Object.entries(d.extremes).map(([id, v]) => `<tr><td>${NM[id] || id}</td><td>${v.maxTemp} °C</td><td>%${v.minHum}</td><td>${v.maxWind} km/s</td><td>${v.maxGust} km/s</td><td>${v.hoursHum20}</td><td>${v.hoursHum30}</td><td>${v.hoursWind30}</td></tr>`).join("") + `</table>`;
     const risky = d.days.filter((x) => x.peak !== "green" || x.peakGust !== "green");

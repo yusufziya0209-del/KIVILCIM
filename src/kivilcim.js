@@ -35,6 +35,13 @@ export function riskLevel(temp, humidity, wind) {
   return "green";
 }
 
+// Deneme amaçlı: verilen eşiklerle risk seviyesi (eşik deneme alanı için)
+export function riskLevelWith(rules, temp, humidity, wind) {
+  if (humidity < rules.red.maxHumidity && wind > rules.red.minWind) return "red";
+  if (temp > rules.yellow.minTemp && humidity < rules.yellow.maxHumidity && wind > rules.yellow.minWind) return "yellow";
+  return "green";
+}
+
 // ---------------------------------------------------------------------------
 // 3) HAVA VERİSİ (Open-Meteo, ücretsiz, anahtar gerekmez)
 // ---------------------------------------------------------------------------
@@ -142,7 +149,7 @@ export async function getHistory(date) {
 }
 
 // Geçmiş veri taraması: bir tarih aralığındaki her gün için her noktanın en yüksek riskini bulur
-export async function scanHistory(start, end) {
+export async function scanHistory(start, end, custom = null) {
   const { lat, lon } = coords();
   const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${start}&end_date=${end}&hourly=${VARS},wind_gusts_10m&wind_speed_unit=kmh&timezone=${TZ}`;
   const data = asArray(await fetchJson(url));
@@ -158,10 +165,13 @@ export async function scanHistory(start, end) {
       const date = h.time[k].slice(0, 10);
       const level = riskLevel(t, rh, w);
       const levelGust = g == null ? "green" : riskLevel(t, rh, g); // aynı kural, ortalama rüzgâr yerine hamle ile
+      const cw = custom && custom.windType === "gust" ? g : w;
+      const levelCustom = custom && cw != null ? riskLevelWith(custom.rules, t, rh, cw) : "green";
       const day = (days[date] ||= {});
-      const cur = (day[loc.id] ||= { peak: "green", peakGust: "green", hours: 0, maxTemp: -99, minHum: 999, maxWind: 0, maxGust: 0 });
+      const cur = (day[loc.id] ||= { peak: "green", peakGust: "green", peakCustom: "green", hours: 0, maxTemp: -99, minHum: 999, maxWind: 0, maxGust: 0 });
       if (LEVELS[level].rank > LEVELS[cur.peak].rank) cur.peak = level;
       if (LEVELS[levelGust].rank > LEVELS[cur.peakGust].rank) cur.peakGust = levelGust;
+      if (LEVELS[levelCustom].rank > LEVELS[cur.peakCustom].rank) cur.peakCustom = levelCustom;
       if (level !== "green") cur.hours++;
       cur.maxTemp = Math.max(cur.maxTemp, round(t));
       cur.minHum = Math.min(cur.minHum, round(rh));
@@ -183,6 +193,7 @@ export async function scanHistory(start, end) {
       date,
       peak: worst(Object.values(byLoc).map((v) => v.peak)),
       peakGust: worst(Object.values(byLoc).map((v) => v.peakGust)),
+      peakCustom: worst(Object.values(byLoc).map((v) => v.peakCustom)),
       locations: byLoc,
     };
   });
@@ -191,6 +202,7 @@ export async function scanHistory(start, end) {
     start, end, totalDays: list.length,
     red: count("peak", "red"), yellow: count("peak", "yellow"), green: count("peak", "green"),
     gust: { red: count("peakGust", "red"), yellow: count("peakGust", "yellow"), green: count("peakGust", "green") },
+    custom: custom ? { ...custom, red: count("peakCustom", "red"), yellow: count("peakCustom", "yellow"), green: count("peakCustom", "green") } : null,
     extremes, days: list,
   };
 }

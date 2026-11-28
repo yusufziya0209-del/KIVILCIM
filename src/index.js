@@ -209,7 +209,19 @@ async function apiAdmin(req, env) {
         const days = (Date.parse(body.end) - Date.parse(body.start)) / 86400000;
         if (days < 0) throw new Error("Bitiş tarihi başlangıçtan önce olamaz.");
         if (days > 184) throw new Error("En fazla 6 aylık bir aralık seçin.");
-        return json(await scanHistory(body.start, body.end));
+        let custom = null;
+        if (body.custom) {
+          const n = (x) => Number(x);
+          const c = body.custom;
+          const rules = {
+            red: { maxHumidity: n(c.redHum), minWind: n(c.redWind) },
+            yellow: { minTemp: n(c.yTemp), maxHumidity: n(c.yHum), minWind: n(c.yWind) },
+          };
+          const vals = [rules.red.maxHumidity, rules.red.minWind, rules.yellow.minTemp, rules.yellow.maxHumidity, rules.yellow.minWind];
+          if (vals.some((v) => isNaN(v))) throw new Error("Eşik değerlerinin hepsi sayı olmalı.");
+          custom = { rules, windType: c.windType === "gust" ? "gust" : "mean" };
+        }
+        return json(await scanHistory(body.start, body.end, custom));
       }
       case "demoOff": {
         await env.KV.delete("settings:demo");
