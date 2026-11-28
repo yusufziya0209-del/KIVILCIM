@@ -144,33 +144,55 @@ export async function getHistory(date) {
 // Geçmiş veri taraması: bir tarih aralığındaki her gün için her noktanın en yüksek riskini bulur
 export async function scanHistory(start, end) {
   const { lat, lon } = coords();
-  const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${start}&end_date=${end}&hourly=${VARS}&wind_speed_unit=kmh&timezone=${TZ}`;
+  const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${start}&end_date=${end}&hourly=${VARS},wind_gusts_10m&wind_speed_unit=kmh&timezone=${TZ}`;
   const data = asArray(await fetchJson(url));
   const days = {}; // "2021-07-29" -> { seydikemer: {...}, ... }
+  const extremes = {}; // dönemin en uç değerleri (köy bazında)
   LOCATIONS.forEach((loc, i) => {
     const h = data[i].hourly;
+    const ex = (extremes[loc.id] = { maxTemp: -99, minHum: 999, maxWind: 0, maxGust: 0, hoursHum20: 0, hoursHum30: 0, hoursWind30: 0 });
     for (let k = 0; k < h.time.length; k++) {
       const t = h.temperature_2m[k], rh = h.relative_humidity_2m[k], w = h.wind_speed_10m[k];
+      const g = h.wind_gusts_10m ? h.wind_gusts_10m[k] : null;
       if (t == null || rh == null || w == null) continue;
       const date = h.time[k].slice(0, 10);
       const level = riskLevel(t, rh, w);
+      const levelGust = g == null ? "green" : riskLevel(t, rh, g); // aynı kural, ortalama rüzgâr yerine hamle ile
       const day = (days[date] ||= {});
-      const cur = (day[loc.id] ||= { peak: "green", hours: 0, maxTemp: -99, minHum: 999, maxWind: 0 });
+      const cur = (day[loc.id] ||= { peak: "green", peakGust: "green", hours: 0, maxTemp: -99, minHum: 999, maxWind: 0, maxGust: 0 });
       if (LEVELS[level].rank > LEVELS[cur.peak].rank) cur.peak = level;
+      if (LEVELS[levelGust].rank > LEVELS[cur.peakGust].rank) cur.peakGust = levelGust;
       if (level !== "green") cur.hours++;
       cur.maxTemp = Math.max(cur.maxTemp, round(t));
       cur.minHum = Math.min(cur.minHum, round(rh));
       cur.maxWind = Math.max(cur.maxWind, round(w));
+      if (g != null) cur.maxGust = Math.max(cur.maxGust, round(g));
+      ex.maxTemp = Math.max(ex.maxTemp, round(t));
+      ex.minHum = Math.min(ex.minHum, round(rh));
+      ex.maxWind = Math.max(ex.maxWind, round(w));
+      if (g != null) ex.maxGust = Math.max(ex.maxGust, round(g));
+      if (rh < 20) ex.hoursHum20++;
+      if (rh < 30) ex.hoursHum30++;
+      if (w > 30) ex.hoursWind30++;
     }
   });
+  const worst = (vals) => vals.reduce((a, b) => (LEVELS[b].rank > LEVELS[a].rank ? b : a), "green");
   const list = Object.keys(days).sort().map((date) => {
     const byLoc = days[date];
-    let peak = "green";
-    for (const v of Object.values(byLoc)) if (LEVELS[v.peak].rank > LEVELS[peak].rank) peak = v.peak;
-    return { date, peak, locations: byLoc };
+    return {
+      date,
+      peak: worst(Object.values(byLoc).map((v) => v.peak)),
+      peakGust: worst(Object.values(byLoc).map((v) => v.peakGust)),
+      locations: byLoc,
+    };
   });
-  const count = (lv) => list.filter((d) => d.peak === lv).length;
-  return { start, end, totalDays: list.length, red: count("red"), yellow: count("yellow"), green: count("green"), days: list };
+  const count = (key, lv) => list.filter((d) => d[key] === lv).length;
+  return {
+    start, end, totalDays: list.length,
+    red: count("peak", "red"), yellow: count("peak", "yellow"), green: count("peak", "green"),
+    gust: { red: count("peakGust", "red"), yellow: count("peakGust", "yellow"), green: count("peakGust", "green") },
+    extremes, days: list,
+  };
 }
 
 // Senaryo (demo için): elle girilen değerler, 12:00–18:00 arası geçerli

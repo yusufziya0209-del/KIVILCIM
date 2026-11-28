@@ -107,16 +107,19 @@ async function scan() {
     const d = await res.json();
     if (!res.ok) throw new Error(d.error);
     const NM = { seydikemer: "Seydikemer", esen: "Eşen", kinik: "Kınık", fethiye: "Fethiye" };
-    let html = `<p><b>${d.totalDays} gün tarandı:</b> <span class="lv-red">${d.red} Kırmızı</span> · <span class="lv-yellow">${d.yellow} Sarı</span> · <span class="lv-green">${d.green} Yeşil</span></p>`;
-    const risky = d.days.filter((x) => x.peak !== "green");
+    let html = `<p><b>${d.totalDays} gün tarandı (kurallar, saatlik ortalama rüzgârla):</b> <span class="lv-red">${d.red} Kırmızı</span> · <span class="lv-yellow">${d.yellow} Sarı</span> · <span class="lv-green">${d.green} Yeşil</span></p>`;
+    html += `<p><b>Aynı kurallar, rüzgâr hamlesiyle (gust):</b> <span class="lv-red">${d.gust.red} Kırmızı</span> · <span class="lv-yellow">${d.gust.yellow} Sarı</span> · <span class="lv-green">${d.gust.green} Yeşil</span></p>`;
+    html += `<p><b>Dönemin en uç değerleri</b></p><table><tr><th>Köy</th><th>En yüksek sıcaklık</th><th>En düşük nem</th><th>En güçlü ort. rüzgâr</th><th>En güçlü hamle</th><th>Nem &lt;%20 (saat)</th><th>Nem &lt;%30 (saat)</th><th>Rüzgâr &gt;30 (saat)</th></tr>` +
+      Object.entries(d.extremes).map(([id, v]) => `<tr><td>${NM[id] || id}</td><td>${v.maxTemp} °C</td><td>%${v.minHum}</td><td>${v.maxWind} km/s</td><td>${v.maxGust} km/s</td><td>${v.hoursHum20}</td><td>${v.hoursHum30}</td><td>${v.hoursWind30}</td></tr>`).join("") + `</table>`;
+    const risky = d.days.filter((x) => x.peak !== "green" || x.peakGust !== "green");
     if (!risky.length) {
-      html += "<p>Bu aralıkta kurallara göre Sarı veya Kırmızı gün çıkmadı. Demo için Senaryo seçeneğini kullanın.</p>";
+      html += "<p>Bu aralıkta ne ortalama rüzgârla ne de hamleyle Sarı/Kırmızı gün çıktı. Demo için Senaryo seçeneğini kullanın.</p>";
     } else {
-      html += `<table><tr><th>Tarih</th><th>En yüksek</th><th>Köyler (en yüksek sıcaklık / en düşük nem / en güçlü rüzgâr)</th><th></th></tr>`;
+      html += `<p style="margin-top:16px"><b>Riskli günler</b></p><table><tr><th>Tarih</th><th>Ort. rüzgârla</th><th>Hamleyle</th><th>Köyler (en yüksek sıcaklık / en düşük nem / ort. rüzgâr / hamle)</th><th></th></tr>`;
       for (const x of risky) {
-        const locs = Object.entries(x.locations).filter(([, v]) => v.peak !== "green")
-          .map(([id, v]) => `<span class="lv-${v.peak}">${NM[id] || id}</span> (${v.maxTemp}°C / %${v.minHum} / ${v.maxWind} km/s, ${v.hours} saat)`).join("<br>");
-        html += `<tr><td>${x.date}</td><td class="lv-${x.peak}">${LV[x.peak]}</td><td>${locs}</td><td><button onclick="useDate('${x.date}')">Bu günü seç</button></td></tr>`;
+        const locs = Object.entries(x.locations).filter(([, v]) => v.peak !== "green" || v.peakGust !== "green")
+          .map(([id, v]) => `<span class="lv-${v.peakGust}">${NM[id] || id}</span> (${v.maxTemp}°C / %${v.minHum} / ${v.maxWind} / ${v.maxGust} km/s)`).join("<br>");
+        html += `<tr><td>${x.date}</td><td class="lv-${x.peak}">${LV[x.peak]}</td><td class="lv-${x.peakGust}">${LV[x.peakGust]}</td><td>${locs}</td><td>${x.peak !== "green" ? `<button onclick="useDate('${x.date}')">Bu günü seç</button>` : ""}</td></tr>`;
       }
       html += "</table>";
     }
