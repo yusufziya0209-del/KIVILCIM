@@ -141,6 +141,38 @@ export async function getHistory(date) {
   };
 }
 
+// Geçmiş veri taraması: bir tarih aralığındaki her gün için her noktanın en yüksek riskini bulur
+export async function scanHistory(start, end) {
+  const { lat, lon } = coords();
+  const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${start}&end_date=${end}&hourly=${VARS}&wind_speed_unit=kmh&timezone=${TZ}`;
+  const data = asArray(await fetchJson(url));
+  const days = {}; // "2021-07-29" -> { seydikemer: {...}, ... }
+  LOCATIONS.forEach((loc, i) => {
+    const h = data[i].hourly;
+    for (let k = 0; k < h.time.length; k++) {
+      const t = h.temperature_2m[k], rh = h.relative_humidity_2m[k], w = h.wind_speed_10m[k];
+      if (t == null || rh == null || w == null) continue;
+      const date = h.time[k].slice(0, 10);
+      const level = riskLevel(t, rh, w);
+      const day = (days[date] ||= {});
+      const cur = (day[loc.id] ||= { peak: "green", hours: 0, maxTemp: -99, minHum: 999, maxWind: 0 });
+      if (LEVELS[level].rank > LEVELS[cur.peak].rank) cur.peak = level;
+      if (level !== "green") cur.hours++;
+      cur.maxTemp = Math.max(cur.maxTemp, round(t));
+      cur.minHum = Math.min(cur.minHum, round(rh));
+      cur.maxWind = Math.max(cur.maxWind, round(w));
+    }
+  });
+  const list = Object.keys(days).sort().map((date) => {
+    const byLoc = days[date];
+    let peak = "green";
+    for (const v of Object.values(byLoc)) if (LEVELS[v.peak].rank > LEVELS[peak].rank) peak = v.peak;
+    return { date, peak, locations: byLoc };
+  });
+  const count = (lv) => list.filter((d) => d.peak === lv).length;
+  return { start, end, totalDays: list.length, red: count("red"), yellow: count("yellow"), green: count("green"), days: list };
+}
+
 // Senaryo (demo için): elle girilen değerler, 12:00–18:00 arası geçerli
 export function getScenario({ temp, humidity, wind }) {
   const t = Number(temp), h = Number(humidity), w = Number(wind);

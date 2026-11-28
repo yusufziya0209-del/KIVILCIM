@@ -2,7 +2,7 @@
 // Sayfalar (public/ klasörü) Cloudflare tarafından doğrudan sunulur; bu dosya /api/... adreslerini
 // ve saatlik otomatik kontrolü yönetir. Veriler KV'de saklanır (bağlantı adı: KV).
 import {
-  LOCATIONS, LEVELS, getForecast, getHistory, getScenario, istanbulHour, normalizePhone, sendSms, json,
+  LOCATIONS, LEVELS, getForecast, getHistory, getScenario, scanHistory, istanbulHour, normalizePhone, sendSms, json,
 } from "./kivilcim.js";
 import { alertMessage } from "./mesajlar.js";
 
@@ -202,6 +202,14 @@ async function apiAdmin(req, env) {
         const demo = { mode: body.mode, date: body.date, temp: body.temp, humidity: body.humidity, wind: body.wind, until };
         await env.KV.put("settings:demo", JSON.stringify(demo), { expirationTtl: DEMO_MINUTES * 60 });
         return json({ ok: true, demo });
+      }
+      case "scan": {
+        const re = /^\d{4}-\d{2}-\d{2}$/;
+        if (!re.test(body.start || "") || !re.test(body.end || "")) throw new Error("Başlangıç ve bitiş tarihi seçin.");
+        const days = (Date.parse(body.end) - Date.parse(body.start)) / 86400000;
+        if (days < 0) throw new Error("Bitiş tarihi başlangıçtan önce olamaz.");
+        if (days > 184) throw new Error("En fazla 6 aylık bir aralık seçin.");
+        return json(await scanHistory(body.start, body.end));
       }
       case "demoOff": {
         await env.KV.delete("settings:demo");
